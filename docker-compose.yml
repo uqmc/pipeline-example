@@ -4,9 +4,10 @@ services:
     nginx:
       image: nginx
       ports: ["8080:80"]
+      restart: unless-stopped
       depends_on: [web]
       volumes:
-          - ./nginx.conf:/etc/nginx/conf.d/pipeline-example.conf:ro
+          - ./nginx.conf:/etc/nginx/conf.d/pipeline-example.conf
 
     web:
       build: .
