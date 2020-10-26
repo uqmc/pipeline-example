@@ -1,0 +1,101 @@
+---
+# Uncomment for commit statuses
+#resource_types:
+#  - name: cogito
+#    type: registry-image
+#    check_every: 1h
+#    source:
+#      repository: pix4d/cogito
+
+resources:
+  - name: git-repo
+    type: git
+    source:
+      branch: master
+# Uncomment for private repos      
+#      username: ((github-username))
+#      password: ((github-token))
+      uri: https://github.com/uqmc/pipeline-example
+
+# Uncomment for commit statuses
+#  - name: commit-status
+#    type: cogito
+#    check_every: 1h
+#    source:
+#      owner: uqmc
+#      repo: example-pipeline
+#      access_token: ((github-token))
+
+jobs:
+  # Build and CI
+  - name: build
+# Uncomment for commit statuses
+#    on_success:
+#      do:
+#        - put: commit-status
+#          input: [git-repo]
+#          params:
+#            state: success
+#    on_failure:
+#      do:
+#        - put: commit-status
+#          inputs: [git-repo]
+#          params:
+#            state: failure
+#    on_error:
+#      do:
+#        - put: commit-status
+#          inputs: [git-repo]
+#          params:
+#            state: error
+    plan:
+      - get: git-repo
+        trigger: true
+# Uncomment for commit statuses
+#      - put: commit-status
+#        params:
+#          state: pending
+      - task: build
+        privileged: true
+        config:
+          plastform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: vito/oci-build-task
+          inputs:
+            - name: git-repo
+              path: .
+          run:
+            path: build
+
+  # Deploy docker-compose
+  - name: deploy
+    serial: true
+    plan:
+      - get: git-repo
+        trigger: true
+        passed: [build]
+      - task: deploy
+        privileged: true
+        # Pulls karlkfi/concourse-dcind which spawns a container
+        #   with docker and docker-compose which takes our code as input
+        #   and lets us run arbitrary docker commands on it.
+        #   In this case, we're running our compose (daemonised,
+        #   to not block the the pipeline from ending)
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: karlkfi/concourse-dcind
+          inputs:
+            - name: git-repo
+          run:
+            path: entrypoint.sh
+            args:
+              - bash
+              - -ceux
+              - |
+                docker-compose -H socat:1234 down
+                docker-compose -H socat:1234 up --build -d
