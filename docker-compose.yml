@@ -1,14 +1,7 @@
 version: "3.7"
 
 services:
-    nginx:
-      image: nginx
-      ports: ["8080:80"]
-      restart: unless-stopped
-      depends_on: [web]
-      volumes:
-          - ./nginx.conf:/etc/nginx/conf.d/pipeline-example.conf
-
-    web:
-      build: .
-      restart: unless-stopped
+  web:
+    build: .
+    ports: ["3000:3000"]
+    restart: unless-stopped
