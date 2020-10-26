@@ -97,5 +97,5 @@ jobs:
               - bash
               - -ceux
               - |
-                docker-compose -H socat:1234 down
-                docker-compose -H socat:1234 up --build -d
+                docker-compose -f git-repo/docker-compose.yml -H socat:1234 down
+                docker-compose -f git-repo/docker-compose.yml -H socat:1234 up --build -d
