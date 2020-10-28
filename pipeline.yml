@@ -1,4 +1,7 @@
 ---
+display:
+  background_image: https://3.bp.blogspot.com/-aOHsI5ilwIA/TyU472gAhiI/AAAAAAAAAY8/-WadyZyD0ls/s1600/Skiing_Jump_Winter_Sport_HD_Wallpaper-Vvallpaper.Net.jpg
+
 # Uncomment for commit statuses
 #resource_types:
 #  - name: cogito
@@ -10,6 +13,7 @@
 resources:
   - name: git-repo
     type: git
+    icon: github
     source:
       branch: master
 # Uncomment for private repos      
